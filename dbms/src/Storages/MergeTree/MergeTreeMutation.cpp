@@ -36,15 +36,9 @@ MergeTreeData::MutableDataPartPtr MergeTreeMutation::executeOnPart(const MergeTr
     MergeTreePartInfo new_part_info = part->info;
     new_part_info.mutation = version;
 
-    String new_part_name;
-    if (data.format_version < MERGE_TREE_DATA_MIN_FORMAT_VERSION_WITH_CUSTOM_PARTITIONING)
-        new_part_name = new_part_info.getPartNameV0(part->getMinDate(), part->getMaxDate());
-    else
-        new_part_name = new_part_info.getPartName();
-
     MergeTreeData::MutableDataPartPtr new_data_part = std::make_shared<MergeTreeData::DataPart>(
-        data, new_part_name, new_part_info);
-    new_data_part->relative_path = "tmp_mut_" + new_part_name;
+        data, part->getNewName(new_part_info), new_part_info);
+    new_data_part->relative_path = "tmp_mut_" + new_data_part->name;
     new_data_part->is_temp = true;
 
     String new_part_tmp_path = new_data_part->getFullPath();
